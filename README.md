@@ -10,29 +10,67 @@ This diagram shows the **flow of a code change** from the developer's machine to
 
 ```mermaid
 flowchart LR
-    A[Developer<br/>Local Git Commit & Push]
-    B[GitHub Repository]
-    C[GitHub Actions]
-    D[PyTest<br/>Automated Validation]
-    E[Terraform<br/>Infrastructure Provisioning]
-    F[AWS Infrastructure]
-    G[Docker Buildx<br/>Build & Tag Image]
-    H[Docker Hub<br/>Container Registry]
-    I[Ansible<br/>Configuration & Deployment]
-    J[EC2 Production Host]
-    K[Docker Engine<br/>Running Containers]
-    L[Monitoting<br/>prometheus/Grafana]
+    %% --- STYLING & CONFIGURATION ---
+    classDef dev fill:#EBF5FB,stroke:#2E86C1,stroke-width:2px,color:#1B4F72;
+    classDef github fill:#F4F6F7,stroke:#171515,stroke-width:2px,color:#24292E;
+    classDef ci fill:#FEF9E7,stroke:#F39C12,stroke-width:2px,color:#7D6608;
+    classDef iac fill:#F5EEF8,stroke:#8E44AD,stroke-width:2px,color:#4A235A;
+    classDef docker fill:#E8F8F5,stroke:#117A65,stroke-width:2px,color:#0E6251;
+    classDef aws fill:#FEF5E7,stroke:#D35400,stroke-width:2px,color:#7E5109;
+    classDef monitor fill:#FDEDEC,stroke:#C0392B,stroke-width:2px,color:#641E16;
 
-    A -->|git push| B
-    B -->|push trigger| C
+    %% --- NODES & ICONS ---
+    A["fa:fa-code Developer<br/><code>Local Commit & Push</code>"]:::dev
+    
+    subgraph S1 [GitHub Platform]
+        B["fa:fa-github GitHub Repository<br/><code>Source Control</code>"]:::github
+        C["fa:fa-play-circle GitHub Actions<br/><code>CI/CD Orchestrator</code>"]:::github
+    end
+
+    subgraph S2 [Continuous Integration]
+        D["fa:fa-check-square PyTest<br/><code>Automated Validation</code>"]:::ci
+        G["fa:fa-layer-group Docker Buildx<br/><code>Build & Tag Image</code>"]:::docker
+        H["fa:fa-database Docker Hub<br/><code>Container Registry</code>"]:::docker
+    end
+
+    subgraph S3 [Infrastructure & Configuration]
+        E["fa:fa-cubes Terraform<br/><code>IaC Provisioning</code>"]:::iac
+        I["fa:fa-cogs Ansible<br/><code>Config & Deployment</code>"]:::iac
+    end
+
+    subgraph S4 [AWS Production Cloud]
+        F["fa:fa-cloud AWS Infrastructure<br/><code>Target Resources</code>"]:::aws
+        J["fa:fa-server EC2 Production Host<br/><code>Compute Instance</code>"]:::aws
+        K["fa:fa-鯨 Docker Engine<br/><code>Running Containers</code>"]:::docker
+    end
+
+    subgraph S5 [Observability Stack]
+        L["fa:fa-chart-line Monitoring<br/><code>Prometheus / Grafana</code>"]:::monitor
+    end
+
+    %% --- RELATIONSHIPS & FLOW ---
+    A ==>|git push| B
+    B -->|webhook trigger| C
     C --> D
-    D -->|success| E
-    E --> F
-    E -->|success| G
-    G --> H
+    
+    D -->|on success| E
+    D -->|on success| G
+    
+    E -->|provisions| F
+    G -->|pushes image| H
+    
     H -->|image available| I
     I -->|SSH + configuration| J
-    J --> K
+    J -->|manages| K
+    K -->|scrapes metrics| L
+
+    %% --- SUBGRAPH STYLES ---
+    style S1 fill:#F8F9F9,stroke:#D5DBDB,stroke-width:1px,stroke-dasharray: 5 5;
+    style S2 fill:#FBFCFC,stroke:#D5DBDB,stroke-width:1px,stroke-dasharray: 5 5;
+    style S3 fill:#FBFCFC,stroke:#D5DBDB,stroke-width:1px,stroke-dasharray: 5 5;
+    style S4 fill:#FEF9E7,stroke:#FADBD8,stroke-width:1px,stroke-dasharray: 5 5;
+    style S5 fill:#FDEDEC,stroke:#FADBD8,stroke-width:1px,stroke-dasharray: 5 5;
+
 ```
 
 ### Pipeline stages
