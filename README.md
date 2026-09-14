@@ -10,18 +10,32 @@ This diagram shows the **flow of a code change** from the developer's machine to
 
 ```mermaid
 flowchart LR
-    A[Developer<br/>Local Git Commit & Push]
-    B[GitHub Repository]
-    C[GitHub Actions]
-    D[PyTest<br/>Automated Validation]
-    E[Terraform<br/>Infrastructure Provisioning]
-    F[AWS Infrastructure]
-    G[Docker Buildx<br/>Build & Tag Image]
-    H[Docker Hub<br/>Container Registry]
-    I[Ansible<br/>Configuration & Deployment]
-    J[EC2 Production Host]
-    K[Docker Engine<br/>Running Containers]
+graph TD
+    %% Define Styles
+    classDef dev fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef git fill:#ffe3e3,stroke:#cc0000,stroke-width:2px;
+    classDef ci fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef test fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef iac fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef aws fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef docker fill:#e0f7fa,stroke:#00acc1,stroke-width:2px;
+    classDef monitor fill:#fffde7,stroke:#fbc02d,stroke-width:2px;
 
+    %% Define Nodes
+    A[Developer<br/>Local Git Commit & Push]:::dev
+    B[GitHub Repository]:::git
+    C[GitHub Actions]:::ci
+    D[PyTest<br/>Automated Validation]:::test
+    E[Terraform<br/>Infrastructure Provisioning]:::iac
+    F[AWS Infrastructure]:::aws
+    G[Docker Buildx<br/>Build & Tag Image]:::docker
+    H[Docker Hub<br/>Container Registry]:::docker
+    I[Ansible<br/>Configuration & Deployment]:::iac
+    J[EC2 Production Host]:::aws
+    K[Docker Engine<br/>Running Containers]:::docker
+    L[Monitoring<br/>Prometheus/Grafana]:::monitor
+
+    %% Define Relationships
     A -->|git push| B
     B -->|push trigger| C
     C --> D
@@ -32,6 +46,11 @@ flowchart LR
     H -->|image available| I
     I -->|SSH + configuration| J
     J --> K
+    K -.->|metrics| L
+
+    %% Subgraph layout for visualization grouping
+    subgraph VersionControl [Source Control]
+        B
 ```
 
 ### Pipeline stages
