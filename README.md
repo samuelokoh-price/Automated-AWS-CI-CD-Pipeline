@@ -72,6 +72,8 @@ flowchart LR
     style S5 fill:#FDEDEC,stroke:#FADBD8,stroke-width:1px,stroke-dasharray: 5 5;
 
 ```
+<img width="1408" height="768" alt="image_bed0d27b" src="https://github.com/user-attachments/assets/06d0d0f8-500e-4459-87e8-d55b518defc2" />
+
 
 ### Pipeline stages
 
