@@ -67,7 +67,7 @@ jobs:
         terraform_version: "1.7.0"
         terraform_wrapper: false 
 
-    # ⚡ FIXED: Added -reconfigure flag to safely link dynamically created backends
+    # FIXED: Added -reconfigure flag to safely link dynamically created backends
     - name: Terraform Initialization
       working-directory: ./terraform
       run: terraform init -reconfigure
