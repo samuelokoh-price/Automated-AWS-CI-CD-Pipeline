@@ -5,7 +5,7 @@ terraform {
   required_version = ">= 1.7.0"
 
   backend "s3" {
-    bucket         = "my-calculator-tfstate-storage" # ⚡ FIXED: Matches the auto-creation script name
+    bucket         = "my-calculator-tfstate-storage" # FIXED: Matches the auto-creation script name
     key            = "calculator/production.tfstate"
     region         = "eu-north-1"
     encrypt        = true
@@ -71,7 +71,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   # Grafana Dashboard
-  ingress {
+  #ingress {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
