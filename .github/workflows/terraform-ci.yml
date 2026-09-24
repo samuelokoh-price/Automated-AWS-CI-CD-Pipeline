@@ -1,0 +1,35 @@
+name: 'Terraform CI'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  terraform-check:
+    name: 'Lint and Validate'
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout the repository code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Install the specific Terraform CLI version
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.5.7
+
+    # 3. Check for formatting errors (Will fail if code isn't formatted)
+    - name: Terraform Format Check
+      run: terraform fmt -check
+
+    # 4. Initialize providers locally (No backend/credentials needed)
+    - name: Terraform Init (Validation Mode)
+      run: terraform init -backend=false
+
+    # 5. Validate the configuration syntax and schemas
+    - name: Terraform Validate
+      run: terraform validate
