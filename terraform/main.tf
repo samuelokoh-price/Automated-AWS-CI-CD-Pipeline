@@ -71,7 +71,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   # Grafana Dashboard
-  #ingress {
+  ingress {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
