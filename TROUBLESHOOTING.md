@@ -1,4 +1,5 @@
-# 🛠️ CI/CD Troubleshooting Case Study: Block Nesting Mismatches
+# 🛠️ Troubleshooting Case Study
+# CiCd - Block Nesting Mismatches
 
 This section documents an intentional failure case study engineered to test our **GitHub Actions CI/CD pipeline** and validate syntax error handling.
 
@@ -97,3 +98,71 @@ This project uses **GitHub Actions** to ensure these errors never reach producti
 2. Click on the **Actions** tab.
 3. Select the failing run under the workflow list.
 4. Expand the **Terraform Validate** step to view the exact console logs shown in Section 1.
+
+## 📊 Troubleshooting Guide: Grafana Dashboard - Connection Refused
+
+This section logs a historical connection issue encountered when attempting to access the Grafana user interface, along with the diagnostic steps and solution applied.
+
+---
+
+## 1. The Symptoms
+* Attempting to navigate to the Grafana URL (e.g., `http://<IP-ADDRESS>:3000`) resulted in an immediate **`ERR_CONNECTION_REFUSED`** error in the web browser.
+* The application layer was verified as active, but the network layer completely rejected the incoming handshake on the designated port.
+
+---
+
+## 2. Diagnostics & Root Cause Analysis (RCA)
+A `Connection Refused` error explicitly indicates that nothing was listening on the target port at the network interface level, or the traffic was actively dropped before reaching the application. The issue stemmed from one of two vectors:
+
+* **Container Port Isolation:** After inspecting the running containers,I noticed the Grafana server was running successfully *inside* the container on port `3000`, but that port was never bound or exposed to the host machine's public network interface. 
+* **Cloud Security Group Block:** The service was hosted on a remote virtual machine (e.g., AWS EC2), but the cloud firewall had no inbound rules defined for TCP port `3000`, causing the network interface to drop the connection requests.
+
+### Diagnostic Verification Commands
+To isolate the issue, the following commands were used:
+```bash
+# 1. Check if the port is actively listening on the host machine
+ss -tuln | grep 3000
+
+# 2. Test external network handshake to the target IP
+nc -zv <-my target IP> 3000
+```
+* **Result:** The host check showed no active listener on port 3000, and the network handshake test timed out/refused immediately.
+
+---
+
+## 3. Step-by-Step Resolution Playbook
+
+### Step 1: Correct Container Port Mapping
+Ensure the deployment configuration explicitly maps the host's port to the internal container port:
+
+### Step 2: Update Infrastructure Firewall Rules
+Ensure your infrastructure-as-code configuration on **main.tf** includes a valid ingress rule to open access to port `3000`:
+```hcl
+resource "aws_security_group_rule" "allow_grafana" {
+  type              = "ingress"
+  from_port         = 3000
+  to_port           = 3000
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Restrict to trusted administrative IP blocks in production
+  security_group_id = aws_security_group.app_sg.id
+}
+```
+*Apply changes:* `git commit
+
+---
+
+## 4. Post-Resolution Verification
+Access is verified as fully restored when a cURL command against the local or remote host target successfully completes a TCP handshake and returns a valid HTTP header:
+
+<img width="1920" height="1080" alt="Screenshot from 2026-09-09 17-46-36" src="https://github.com/user-attachments/assets/81151833-d367-4bc1-a4a3-bb2b682d4c9c" />
+
+
+```bash
+curl -I http://localhost:3000/login
+```
+```text
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Date: Sat, 26 Sep 2026 11:38:00 GMT
+Connection: keep-alive
+```
