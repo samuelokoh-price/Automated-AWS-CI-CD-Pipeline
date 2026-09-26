@@ -192,7 +192,7 @@ Node Exporter ─────┘
 
 4. **Docker Bridge-Based Internal Communication** — The monitoring components communicate through the Docker bridge/network rather than requiring every internal service to be exposed publicly.
 
-## Screenshot
+## Screenshots
 <img width="1920" height="1080" alt="Screenshot from 2026-09-09 13-47-04" src="https://github.com/user-attachments/assets/83c672ce-ff79-4394-9046-4482a864ce5a" />
 
 <img width="1920" height="1080" alt="Screenshot from 2026-09-09 13-50-41" src="https://github.com/user-attachments/assets/fd0b924c-5458-4673-910b-eed822a5c4c4" />
