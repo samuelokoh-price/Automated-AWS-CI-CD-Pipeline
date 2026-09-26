@@ -1,5 +1,14 @@
 # Automated AWS CI/CD Pipeline with Terraform, Ansible & Docker
 
+![Docker](https://shields.io)
+![Terraform](https://shields.io)
+![Ansible](https://shields.io)
+![GitHub Actions](https://shields.io)
+![AWS](https://shields.io)
+![Nginx](https://shields.io)
+![Prometheus](https://shields.io)
+![Grafana](https://shields.io)
+
 An end-to-end Continuous Integration and Continuous Deployment (CI/CD) system that automatically validates application changes, provisions AWS infrastructure, builds and publishes a Docker image, configures an EC2 host, deploys the application stack, and exposes monitoring through Prometheus and Grafana.
 
 The project combines **CI/CD, Infrastructure as Code, configuration management, containerization, reverse proxying, and observability** into one reproducible workflow.
@@ -300,8 +309,3 @@ Prometheus → Grafana
 - Automated infrastructure teardown
 - Reproducible deployment rather than manual server setup
 
-## ⚠️ Scope
-
-This is a portfolio project designed to demonstrate production-oriented DevOps practices on a small AWS deployment. The architecture intentionally keeps the infrastructure relatively simple: a single EC2 production host running the application and monitoring containers.
-
-The project demonstrates the **engineering workflow and operational concepts** used in larger environments without claiming that this small deployment has the scale or redundancy of a large enterprise platform.
