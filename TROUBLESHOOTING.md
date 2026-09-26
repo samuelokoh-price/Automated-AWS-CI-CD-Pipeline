@@ -166,3 +166,79 @@ Content-Type: text/html; charset=UTF-8
 Date: Sat, 26 Sep 2026 11:38:00 GMT
 Connection: keep-alive
 ```
+
+# 📊 Troubleshooting Guide: Grafana & Prometheus Connection Failures
+
+This section logs a historical multi-stage connection issue encountered when setting up the Grafana metrics dashboard, along with the diagnostic workflows and final engineering fixes.
+
+---
+
+## 1. The Symptoms
+After successfully establishing access to the Grafana UI, the application threw an error when attempting to reach the time-series backend:
+* **Error Behavior:** Grafana could not read or connect to Prometheus (`HTTP Error Bad Gateway` or `Context Deadline Exceeded`).
+* **Root Cause Manifestation:** Even after updating the backend target configurations in `datasource.yml`, Grafana failed to execute metric queries and continued attempting connection handshakes with a stale engine mapping.
+
+---
+
+## 2. Root Cause Analysis (RCA)
+
+The breakdown happened across two distinct layers:
+
+1. **Network Layer Container Isolation:** By default, a standalone Docker container resolving `localhost` or `127.0.0.1` points to its *own* internal network interface. It cannot see a Prometheus service running directly on the host machine or another unlinked bridge.
+2. **Grafana Provisioning Caching:** Grafana preserves provisioned data sources inside its sqlite/internal database. When you modify a local file volume like `/etc/grafana/provisioning/datasources/datasource.yml`, Grafana frequently ignores updates to an existing data source layout unless its configuration engine is explicitly forced to reload the relational map.
+
+---
+
+## 3. Step-by-Step Resolution Playbook
+
+To resolve the connection issue, updates were applied to the deployment blueprint and the datasource orchestration code.
+
+### Step 1: Bridge Docker to the Host Gateway (`etc_hosts`)
+We configured the engine to recognize the host network gateway explicitly. This maps the domain `host.docker.internal` inside Linux Docker container runtimes:
+
+```yaml
+# Inside the monitoring deployment playbook
+    recreate: true 
+    ports:
+      - "3000:3000"
+    # FIX: Explicitly instructs Linux Docker to resolve host.docker.internal to the host gateway
+    etc_hosts:
+      host.docker.internal: "host-gateway"
+    volumes:
+      - "/etc/grafana/provisioning/datasources/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro"
+      - "/etc/grafana/provisioning/dashboards/provider.yml:/etc/grafana/provisioning/dashboards/provider.yml:ro"
+      - "/var/lib/grafana/dashboards:/var/lib/grafana/dashboards:rw"
+```
+
+### Step 2: Force Engine Mapping Reload (`version` increment)
+Because Grafana caches provisioned datasources, you must change the `version` field directly inside your `datasource.yml` layout. Incrementing this counter forces Grafana to overwrite its internal cache database with your fresh network targets during the `recreate: true` cycle.
+
+```yaml
+# File: /etc/grafana/provisioning/datasources/datasource.yml
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    # Point to the freshly mapped Docker host loopback bridge
+    url: http://docker.internal 
+    isDefault: true
+    editable: false
+    # FIX: Incrementing this version flags the internal engine to drop stale mappings and reload configurations
+    version: 2 
+```
+<img width="1920" height="1080" alt="Screenshot from 2026-09-26 11-56-22" src="https://github.com/user-attachments/assets/1a2e5045-741c-4a4b-aa32-e0ac805a5641" />
+
+---
+
+## 4. Post-Resolution Verification
+Access is verified as completely functional when the Git commit resolves the deployment and the Grafana data sources panel confirms connectivity:
+
+```text
+Commit Hash: fix(monitoring): increment datasource version to force engine mapping reload
+```
+
+1. Navigate to Grafana > **Connections** > **Data Sources**.
+2. Click **Prometheus** and select **Save & Test**.
+3. **Expected Success Output:** `Successfully queried the Prometheus API.`
