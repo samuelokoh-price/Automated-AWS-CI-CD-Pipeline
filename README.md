@@ -1,13 +1,17 @@
 # Automated AWS CI/CD Pipeline with Terraform, Ansible & Docker
 
-![Docker](https://shields.io)
-![Terraform](https://shields.io)
-![Ansible](https://shields.io)
-![GitHub Actions](https://shields.io)
-![AWS](https://shields.io)
-![Nginx](https://shields.io)
-![Prometheus](https://shields.io)
-![Grafana](https://shields.io)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge\&logo=flask\&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker\&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge\&logo=terraform\&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge\&logo=ansible\&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge\&logo=github-actions\&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge\&logo=amazon-aws\&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge\&logo=nginx\&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge\&logo=prometheus\&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge\&logo=grafana\&logoColor=white)
+
+
 
 An end-to-end Continuous Integration and Continuous Deployment (CI/CD) system that automatically validates application changes, provisions AWS infrastructure, builds and publishes a Docker image, configures an EC2 host, deploys the application stack, and exposes monitoring through Prometheus and Grafana.
 
